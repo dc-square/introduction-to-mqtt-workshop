@@ -1,6 +1,6 @@
 package de.iotcon.mqtt;
 
-import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
@@ -14,13 +14,13 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class MQTTDeathstar {
 
-    private final MqttClient mqttClient;
+    private final MqttAsyncClient mqttClient;
 
     private AtomicInteger communicationFrequency = new AtomicInteger(1);
 
 
     public MQTTDeathstar() throws MqttException {
-        mqttClient = new MqttClient("tcp://localhost:1883", "Deathstar_Client", new MemoryPersistence());
+        mqttClient = new MqttAsyncClient("tcp://localhost:1883", "Deathstar_Client", new MemoryPersistence());
 
     }
 
@@ -33,11 +33,11 @@ public class MQTTDeathstar {
         final MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
         mqttConnectOptions.setWill(Topics.DEATHSTAR_STATUS, "0".getBytes(), 2, true);
 
-        mqttClient.connect(mqttConnectOptions);
+        mqttClient.connect(mqttConnectOptions).waitForCompletion();
 
-        mqttClient.publish(Topics.DEATHSTAR_STATUS, "1".getBytes(), 2, true);
+        mqttClient.publish(Topics.DEATHSTAR_STATUS, "1".getBytes(), 2, true).waitForCompletion();
 
-        mqttClient.subscribe(new String[]{Topics.SUPERLASER_STATUS, Topics.COMMUNICATION_FREQUENCY, Topics.GREENHOUSE_TEMPERATURE});
+        mqttClient.subscribe(new String[]{Topics.SUPERLASER_STATUS, Topics.COMMUNICATION_FREQUENCY, Topics.GREENHOUSE_TEMPERATURE}, new int[]{0, 0, 0}).waitForCompletion();
 
         publishPeriodically();
     }
@@ -50,7 +50,7 @@ public class MQTTDeathstar {
         if (i < 5) {
             System.out.println("Publishing reactor alert!");
             final MqttMessage message = new MqttMessage("Invaders located near the reactor!".getBytes());
-            mqttClient.publish(Topics.REACTOR_ALERT, message);
+            mqttClient.publish(Topics.REACTOR_ALERT, message).waitForCompletion();
         }
     }
 
@@ -66,6 +66,6 @@ public class MQTTDeathstar {
 
     private void greenHouseTemperature() throws MqttException {
         final int greenhouseTemperature = new Random().nextInt(35);
-        mqttClient.publish(Topics.GREENHOUSE_TEMPERATURE, ("" + greenhouseTemperature).getBytes(), 0, false);
+        mqttClient.publish(Topics.GREENHOUSE_TEMPERATURE, ("" + greenhouseTemperature).getBytes(), 0, false).waitForCompletion();
     }
 }

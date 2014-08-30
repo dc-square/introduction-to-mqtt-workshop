@@ -9,17 +9,17 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class CommandReceiver implements MqttCallback {
 
-    private MqttClient client;
+    private MqttAsyncClient client;
     private AtomicInteger communicationFrequency;
 
-    public CommandReceiver(final MqttClient client, AtomicInteger communicationFrequency) {
+    public CommandReceiver(final MqttAsyncClient client, AtomicInteger communicationFrequency) {
         this.client = client;
         this.communicationFrequency = communicationFrequency;
     }
 
     @Override
     public void connectionLost(final Throwable throwable) {
-
+        throwable.printStackTrace();
     }
 
     @Override
