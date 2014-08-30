@@ -31,7 +31,7 @@ public class MQTTDeathstar {
 
         mqttClient.connect();
 
-        mqttClient.subscribe(new String[]{Topics.SUPERLASER_STATUS, Topics.COMMUNICATION_FREQUENCY});
+        mqttClient.subscribe(new String[]{Topics.SUPERLASER_STATUS, Topics.COMMUNICATION_FREQUENCY, Topics.GREENHOUSE_TEMPERATURE});
 
         publishPeriodically();
     }
@@ -54,6 +54,12 @@ public class MQTTDeathstar {
         while (true) {
             Thread.sleep(1000 * communicationFrequency.get());
             reactorAlert();
+            greenHouseTemperature();
         }
+    }
+
+    private void greenHouseTemperature() throws MqttException {
+        final int greenhouseTemperature = new Random().nextInt(35);
+        mqttClient.publish(Topics.GREENHOUSE_TEMPERATURE, ("" + greenhouseTemperature).getBytes(), 0, false);
     }
 }
