@@ -21,9 +21,13 @@ public class MQTTDeathstar {
 
     public void start() throws MqttException, InterruptedException {
 
+        mqttClient.setCallback(new CommandReceiver(mqttClient));
+
         System.out.println("Connecting deathstar to Broker");
 
         mqttClient.connect();
+
+        mqttClient.subscribe(Topics.SUPERLASER_STATUS);
 
         publishPeriodically();
     }
