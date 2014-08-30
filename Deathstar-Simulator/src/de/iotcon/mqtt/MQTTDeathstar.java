@@ -1,6 +1,7 @@
 package de.iotcon.mqtt;
 
 import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
@@ -29,7 +30,12 @@ public class MQTTDeathstar {
 
         System.out.println("Connecting deathstar to Broker");
 
-        mqttClient.connect();
+        final MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
+        mqttConnectOptions.setWill(Topics.DEATHSTAR_STATUS, "0".getBytes(), 2, true);
+
+        mqttClient.connect(mqttConnectOptions);
+
+        mqttClient.publish(Topics.DEATHSTAR_STATUS, "1".getBytes(), 2, true);
 
         mqttClient.subscribe(new String[]{Topics.SUPERLASER_STATUS, Topics.COMMUNICATION_FREQUENCY, Topics.GREENHOUSE_TEMPERATURE});
 
