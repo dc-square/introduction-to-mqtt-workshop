@@ -28,6 +28,7 @@ $(document).ready(function () {
             client.subscribe("deathstar/reactor/alert");
             client.subscribe("deathstar/superlaser/status");
             client.subscribe("deathstar/greenhouse/temperature");
+            client.subscribe("deathstar/status");
         },
 
         //Gets Called if the connection could not be established
@@ -49,6 +50,14 @@ $(document).ready(function () {
             }
         } else if (topic === "deathstar/greenhouse/temperature") {
             updateTemperature(message.payloadString);
+        } else if (topic === "deathstar/status") {
+            if (message.payloadString === "0") {
+                $("#client_disconnected").html('Deathstar is disconnected!').show();
+                $("#client_connected").hide();
+            } else {
+                $("#client_connected").html('Deathstar is connected!').show();
+                $("#client_disconnected").hide()
+            }
         }
     };
 
