@@ -27,7 +27,7 @@ $(document).ready(function () {
         onSuccess: function () {
             client.subscribe("deathstar/reactor/alert");
             client.subscribe("deathstar/superlaser/status");
-
+            client.subscribe("deathstar/greenhouse/temperature");
         },
 
         //Gets Called if the connection could not be established
@@ -47,6 +47,8 @@ $(document).ready(function () {
             if (message.payloadString === "deactivated") {
                 stopSuperLaser();
             }
+        } else if (topic === "deathstar/greenhouse/temperature") {
+            updateTemperature(message.payloadString);
         }
     };
 
