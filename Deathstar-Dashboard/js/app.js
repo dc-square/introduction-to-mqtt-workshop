@@ -89,6 +89,15 @@ function stopSuperLaser() {
     return false;
 }
 
+function changeFrequency(interval) {
+
+    var message = new Messaging.Message(interval);
+    message.destinationName = "deathstar/communication/frequency";
+    message.qos = 2;
+
+    client.send(message);
+}
+
 function updateTemperature(temp) {
     gauge.refresh(parseFloat(temp));
 }
