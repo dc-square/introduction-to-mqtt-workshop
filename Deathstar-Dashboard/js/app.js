@@ -1,4 +1,5 @@
-//FIXME: Create Client
+var client = new Messaging.Client("localhost", 8000, "deathstar-dashboard");
+
 
 var gauge;
 $(document).ready(function () {
@@ -24,7 +25,8 @@ $(document).ready(function () {
 
         //Gets Called if the connection has successfully been established
         onSuccess: function () {
-            //FIXME: Subscribe here
+            client.subscribe("deathstar/reactor/alert");
+
         },
 
         //Gets Called if the connection could not be established
@@ -33,10 +35,30 @@ $(document).ready(function () {
         }
     };
 
+    //Gets called whenever you receive a message for your subscriptions
+    client.onMessageArrived = function (message) {
+
+        var topic = message.destinationName;
+
+        if (topic === "deathstar/reactor/alert") {
+            invaderAlert(message.payloadString);
+        }
+    };
+
 
 //Attempt to connect
     client.connect(options);
 });
+
+
+function invaderAlert(text) {
+    $("#invader_warning_label").text(text);
+
+    var alertComponent = $("#invader_warning");
+
+    alertComponent.show().delay(5000).fadeOut();
+
+}
 
 
 function updateTemperature(temp) {
