@@ -26,6 +26,7 @@ $(document).ready(function () {
         //Gets Called if the connection has successfully been established
         onSuccess: function () {
             client.subscribe("deathstar/reactor/alert");
+            client.subscribe("deathstar/superlaser/status");
 
         },
 
@@ -42,6 +43,10 @@ $(document).ready(function () {
 
         if (topic === "deathstar/reactor/alert") {
             invaderAlert(message.payloadString);
+        } else if (topic === "deathstar/superlaser/status") {
+            if (message.payloadString === "deactivated") {
+                stopSuperLaser();
+            }
         }
     };
 
@@ -60,6 +65,27 @@ function invaderAlert(text) {
 
 }
 
+function fireSuperLaser() {
+    var message = new Messaging.Message("activated");
+    message.destinationName = "deathstar/superlaser/status";
+    message.qos = 0;
+    message.retained = true;
+
+    client.send(message);
+
+    $("#deathstar_animation").show();
+    $("#deathstar_laser_recharged").hide();
+
+    return false;
+}
+
+function stopSuperLaser() {
+
+    $("#deathstar_animation").hide();
+    $("#deathstar_laser_recharged").show();
+
+    return false;
+}
 
 function updateTemperature(temp) {
     gauge.refresh(parseFloat(temp));
