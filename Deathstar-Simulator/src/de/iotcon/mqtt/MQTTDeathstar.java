@@ -6,6 +6,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Dominik Obermaier
@@ -14,6 +15,9 @@ public class MQTTDeathstar {
 
     private final MqttClient mqttClient;
 
+    private AtomicInteger communicationFrequency = new AtomicInteger(1);
+
+
     public MQTTDeathstar() throws MqttException {
         mqttClient = new MqttClient("tcp://localhost:1883", "Deathstar_Client", new MemoryPersistence());
 
@@ -21,13 +25,13 @@ public class MQTTDeathstar {
 
     public void start() throws MqttException, InterruptedException {
 
-        mqttClient.setCallback(new CommandReceiver(mqttClient));
+        mqttClient.setCallback(new CommandReceiver(mqttClient, communicationFrequency));
 
         System.out.println("Connecting deathstar to Broker");
 
         mqttClient.connect();
 
-        mqttClient.subscribe(Topics.SUPERLASER_STATUS);
+        mqttClient.subscribe(new String[]{Topics.SUPERLASER_STATUS, Topics.COMMUNICATION_FREQUENCY});
 
         publishPeriodically();
     }
@@ -48,7 +52,7 @@ public class MQTTDeathstar {
 
         //Oldskool infinite loop
         while (true) {
-            Thread.sleep(1000);
+            Thread.sleep(1000 * communicationFrequency.get());
             reactorAlert();
         }
     }

@@ -2,15 +2,19 @@ package de.iotcon.mqtt;
 
 import org.eclipse.paho.client.mqttv3.*;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * @author Dominik Obermaier
  */
 public class CommandReceiver implements MqttCallback {
 
     private MqttClient client;
+    private AtomicInteger communicationFrequency;
 
-    public CommandReceiver(MqttClient client) {
+    public CommandReceiver(final MqttClient client, AtomicInteger communicationFrequency) {
         this.client = client;
+        this.communicationFrequency = communicationFrequency;
     }
 
     @Override
@@ -26,7 +30,17 @@ public class CommandReceiver implements MqttCallback {
             if ("activated".equals(payload)) {
                 activateSuperlaser();
             }
+        } else if (Topics.COMMUNICATION_FREQUENCY.equals(topic)) {
+            changeCommunicationFrequency(mqttMessage);
         }
+    }
+
+    private void changeCommunicationFrequency(final MqttMessage mqttMessage) {
+        final String payload = new String(mqttMessage.getPayload());
+        final int frequency = Integer.parseInt(payload);
+
+        System.out.println("Setting communication frequency to " + frequency + " seconds");
+        communicationFrequency.set(frequency);
     }
 
     private void activateSuperlaser() throws MqttException, InterruptedException {
